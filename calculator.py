@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Simple safe calculator REPL and one-shot evaluator.
+
 Usage:
   python calculator.py           -> interactive REPL
   python calculator.py 2+3*4     -> prints result and exits
@@ -9,7 +10,7 @@ import operator as op
 import math
 import sys
 
-# allowed operators
+# allowed binary operators
 _ops = {
     ast.Add: op.add,
     ast.Sub: op.sub,
@@ -23,16 +24,9 @@ _ops = {
 # allowed unary ops
 _unary = {ast.UAdd: lambda x: x, ast.USub: lambda x: -x}
 
-# allowed math functions (if you want more add here)
+# allowed math functions and constants
 _allowed_names = {k: getattr(math, k) for k in (
-    "sin",
-    "cos",
-    "tan",
-    "sqrt",
-    "log",
-    "log10",
-    "exp",
-    "pow",
+    "sin", "cos", "tan", "sqrt", "log", "log10", "exp", "pow",
 )}
 _allowed_names.update({"pi": math.pi, "e": math.e})
 
@@ -40,9 +34,11 @@ _allowed_names.update({"pi": math.pi, "e": math.e})
 def _eval(node):
     if isinstance(node, ast.Expression):
         return _eval(node.body)
-    if isinstance(node, ast.Num):  # < Py3.8
+    # numeric literal (< Py3.8)
+    if isinstance(node, ast.Num):
         return node.n
-    if hasattr(ast, "Constant") and isinstance(node, ast.Constant):  # Py3.8+
+    # numeric literal (Py3.8+)
+    if hasattr(ast, "Constant") and isinstance(node, ast.Constant):
         if isinstance(node.value, (int, float)):
             return node.value
         raise ValueError("Unsupported constant")
@@ -82,26 +78,26 @@ def eval_expr(expr: str):
 def repl():
     try:
         while True:
-            s = input('calc> ').strip()
+            s = input("calc> ").strip()
             if not s:
                 continue
-            if s.lower() in ('quit', 'exit'):
+            if s.lower() in ("quit", "exit"):
                 break
             try:
                 print(eval_expr(s))
             except Exception as e:
-                print('Error:', e)
+                print("Error:", e)
     except (EOFError, KeyboardInterrupt):
         print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) > 1:
-        expr = ' '.join(sys.argv[1:])
+        expr = " ".join(sys.argv[1:])
         try:
             print(eval_expr(expr))
         except Exception as e:
-            print('Error:', e)
+            print("Error:", e)
             sys.exit(1)
     else:
         repl()
