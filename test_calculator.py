@@ -63,7 +63,6 @@ class TestPrecedenceAndParentheses:
         assert eval_expr("((2 + 3) * (4 - 1))") == 15
 
     def test_power_right_associative(self):
-        # 2**3**2 == 2**(3**2) == 512  — Python's default
         assert eval_expr("2 ** 3 ** 2") == pytest.approx(512)
 
     def test_chained_addition(self):
@@ -84,7 +83,6 @@ class TestUnaryOperators:
         assert eval_expr("+5") == 5
 
     def test_double_unary_minus(self):
-        # --5 == -(-5) == 5
         assert eval_expr("--5") == 5
 
     def test_unary_minus_in_expression(self):
@@ -164,7 +162,6 @@ class TestEdgeCases:
             eval_expr("5 % 0")
 
     def test_large_exponent(self):
-        # Should evaluate without error; result is a very large int
         result = eval_expr("2 ** 100")
         assert result == 2 ** 100
 
@@ -178,7 +175,6 @@ class TestEdgeCases:
         assert eval_expr("(-2) ** 3") == -8
 
     def test_zero_to_zero(self):
-        # Python: 0**0 == 1
         assert eval_expr("0 ** 0") == 1
 
     def test_large_float(self):
@@ -199,7 +195,6 @@ class TestSecurity:
             eval_expr("print('hi')")
 
     def test_disallowed_dunder_import(self):
-        # __import__ is a Name not in _allowed_names → ValueError
         with pytest.raises((ValueError, SyntaxError)):
             eval_expr("__import__('os')")
 
@@ -220,7 +215,6 @@ class TestSecurity:
             eval_expr("1 if True else 2")
 
     def test_disallowed_assignment(self):
-        # Assignment is a statement; ast.parse(..., mode='eval') raises SyntaxError
         with pytest.raises(SyntaxError):
             eval_expr("x = 5")
 
@@ -233,9 +227,6 @@ class TestSecurity:
             eval_expr("'hello'")
 
     def test_disallowed_bool_literal(self):
-        # bool is a subclass of int in Python, so ast.Constant accepts it;
-        # the calculator returns the numeric value (True==1, False==0).
-        # Disallowed strings/None remain blocked via the Unsupported-constant path.
         assert eval_expr("True") == 1
         assert eval_expr("False") == 0
 
@@ -265,7 +256,6 @@ class TestMalformedInput:
             eval_expr("(2 + 3")
 
     def test_double_operator(self):
-        # 2++3 is valid Python (2 + (+3)); use a truly invalid operator sequence
         with pytest.raises(SyntaxError):
             eval_expr("2 */ 3")
 
